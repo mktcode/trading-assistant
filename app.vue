@@ -1,5 +1,3 @@
 <template>
-  <div>
-    <TickerBar />
-  </div>
+  <NuxtPage />
 </template>

@@ -8,4 +8,9 @@ export default defineNuxtConfig({
     },
   },
   css: ['~/assets/css/main.css'],
+  runtimeConfig: {
+    krakenApiUrl: process.env.KRAKEN_API_URL,
+    krakenApiKey: process.env.KRAKEN_API_KEY,
+    krakenApiPrivateKey: process.env.KRAKEN_API_PRIVATE_KEY,
+  },
 })

@@ -12,10 +12,12 @@
   "dependencies": {
     "@vueuse/core": "^10.7.2",
     "nuxt": "^3.10.0",
+    "qs": "^6.11.2",
     "vue": "^3.4.15",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
+    "@types/qs": "^6.9.11",
     "autoprefixer": "^10.4.17",
     "postcss": "^8.4.33",
     "tailwindcss": "^3.4.1"
