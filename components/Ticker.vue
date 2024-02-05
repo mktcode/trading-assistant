@@ -8,12 +8,11 @@ const props = defineProps({
   },
   updateInterval: {
     type: Number,
-    default: 1000,
+    default: 60_000,
   },
 });
 
 const { ticker, fetchTicker } = useTicker(props.pair);
-const { removePair } = usePairs();
 const updateIntervalHandler = ref<NodeJS.Timeout>();
 
 onMounted(async () => {
@@ -23,15 +22,13 @@ onMounted(async () => {
   }, props.updateInterval);
 });
 
-onBeforeUnmount
+onBeforeUnmount(() => {
+  clearInterval(updateIntervalHandler.value);
+});
 </script>
 
 <template>
-  <div class="flex items-center">
-    <div class="text-sm">
-      <div class="font-bold">{{ pair }}</div>
-      <div>{{ ticker }}</div>
-    </div>
-    <button @click="removePair(pair)" class="bg-red-500 text-white rounded-full px-2">x</button>
+  <div class="text-sm">
+    {{ ticker }}
   </div>
 </template>

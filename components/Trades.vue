@@ -1,65 +1,79 @@
 <script setup lang="ts">
-const { data: trades } = await useFetch('/api/trades', { method: 'POST', body: { pair: 'LINKUSD'} })
+const props = defineProps({
+  pair: {
+    type: String,
+    required: true,
+  },
+});
 
-const buyTrades = computed(() => trades.value?.filter(trade => trade.type === 'buy') || [])
-const buyCostSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
-const buyVolSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)
-
-const sellTrades = computed(() => trades.value?.filter(trade => trade.type === 'sell') || [])
-const sellCostSum = computed(() => sellTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
-const sellVolSum = computed(() => sellTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)
-
-const averageBuyPrice = computed(() => {
-  if (!buyTrades.value?.length) return 0
-
-  return buyCostSum.value / buyVolSum.value
-})
-const averageSellPrice = computed(() => {
-  if (!sellTrades.value?.length) return 0
-
-  return sellCostSum.value / sellVolSum.value
-})
-const percentage = computed(() => {
-  if (!averageBuyPrice.value || !averageSellPrice.value) return 0
-
-  return ((averageSellPrice.value - averageBuyPrice.value) / averageBuyPrice.value) * 100
-})
+const {
+  trades,
+  pairInfo,
+  averageBuyPrice,
+  averageSellPrice,
+  averagePriceGap,
+  buyCostSum,
+  sellCostSum,
+  buyVolSum,
+  sellVolSum,
+} = await useTrades(props.pair)
+const { removePair } = usePairs();
+const showTrades = ref(false)
 </script>
 
 <template>
-  <div>
-    <h1>Trades</h1>
-    <table>
-      <tr>
-        <th>Average Buy</th>
-        <th>Average Sell</th>
-        <th>Diff.</th>
-      </tr>
-      <tr>
-        <td>{{ averageBuyPrice.toFixed(3) }}</td>
-        <td>{{ averageSellPrice.toFixed(3) }}</td>
-        <td>{{ percentage.toFixed(2) }}%</td>
-      </tr>
-      <tr>
-        <td>{{ buyCostSum.toFixed(2) }}</td>
-        <td>{{ sellCostSum.toFixed(2) }}</td>
-        <td></td>
-      </tr>
-      <tr>
-        <td>{{ buyVolSum.toFixed(3) }}</td>
-        <td>{{ sellVolSum.toFixed(3) }}</td>
-        <td></td>
-      </tr>
-      <tr>
-        <th>Type</th>
-        <th>Price</th>
-        <th>Volume</th>
-      </tr>
-      <tr v-for="trade in trades" :key="trade.ordertxid">
-        <td>{{ trade.type }}</td>
-        <td>{{ parseFloat(trade.price).toFixed(3) }}</td>
-        <td>{{ parseFloat(trade.vol).toFixed(3) }}</td>
-      </tr>
-    </table>
+  <div class="border rounded-xl max-w-96">
+    <h1 class="text-2xl font-bold px-4 py-2 border-b flex items-center">
+      <span class="mr-3">
+        {{ pair }}
+      </span>
+      <Ticker :pair="pair" />
+      <button @click="removePair(pair)" class="bg-transparent text-gray-400 w-auto ml-auto">
+        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="1.5" stroke="currentColor" class="w-6 h-6">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18 18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </h1>
+    <div class="w-full p-3">
+      <div class="flex justify-between items-center">
+        <div>Average Buy</div>
+        <div>{{ averageBuyPrice.toFixed(3) }}</div>
+      </div>
+      <div class="flex justify-between items-center">
+        <div>Average Sell</div>
+        <div>{{ averageSellPrice.toFixed(3) }}</div>
+      </div>
+      <div class="flex justify-between items-center">
+        <div>Diff.</div>
+        <div>{{ averagePriceGap.toFixed(2) }}%</div>
+      </div>
+      <div class="flex justify-between items-center">
+        <div>Bought</div>
+        <div>{{ buyVolSum.toFixed(3) }} {{ pairInfo?.base }}</div>
+        <div>for {{ buyCostSum.toFixed(2) }} {{ pairInfo?.quote }}</div>
+      </div>
+      <div class="flex justify-between items-center">
+        <div>Sold</div>
+        <div>{{ sellVolSum.toFixed(3) }} {{ pairInfo?.base }}</div>
+        <div>for {{ sellCostSum.toFixed(2) }} {{ pairInfo?.quote }}</div>
+      </div>
+      <div class="mt-3">
+        <button @click="showTrades = !showTrades">
+          {{ showTrades ? 'Hide' : 'Show' }} Trades
+        </button>
+      </div>
+      <div v-if="showTrades">
+        <div>
+          <div>Type</div>
+          <div>Price</div>
+          <div>Volume</div>
+        </div>
+        <div v-for="trade in trades" :key="trade.ordertxid">
+          <div>{{ trade.type }}</div>
+          <div>{{ parseFloat(trade.price).toFixed(3) }}</div>
+          <div>{{ parseFloat(trade.vol).toFixed(3) }}</div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>

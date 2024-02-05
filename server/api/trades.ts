@@ -1,6 +1,6 @@
 import qs from "qs";
 
-type Trade = {
+export type Trade = {
   ordertxid: string
   postxid: string
   pair: string
