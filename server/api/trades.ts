@@ -17,8 +17,6 @@ export type Trade = {
 
 export default defineEventHandler(async (event): Promise<Trade[]> => {
   const runtimeConfig = useRuntimeConfig(event)
-  const body = await readBody(event)
-  const pair = body?.pair || null
 
   const path = '/0/private/TradesHistory';
   const nonce = new Date().getTime()
@@ -49,10 +47,6 @@ export default defineEventHandler(async (event): Promise<Trade[]> => {
 
   if (response.error.length) {
     throw new Error(response.error.join(', '))
-  }
-
-  if (pair) {
-    return Object.entries(response.result.trades).filter((trade: any) => trade[1].pair === pair).map((trade: any) => trade[1])
   }
 
   return Object.entries(response.result.trades).map((trade: any) => trade[1])

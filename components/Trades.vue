@@ -7,7 +7,7 @@ const props = defineProps({
 });
 
 const {
-  trades,
+  pairTrades,
   pairInfo,
   averageBuyPrice,
   averageSellPrice,
@@ -68,7 +68,7 @@ const showTrades = ref(false)
           <div>Price</div>
           <div>Volume</div>
         </div>
-        <div v-for="trade in trades" :key="trade.ordertxid" class="grid grid-cols-3" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
+        <div v-for="trade in pairTrades" :key="trade.ordertxid" class="grid grid-cols-3" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
           <div>{{ trade.type }}</div>
           <div>{{ parseFloat(trade.price).toFixed(4) }}</div>
           <div>{{ parseFloat(trade.vol).toFixed(4) }}</div>

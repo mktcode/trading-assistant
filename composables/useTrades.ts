@@ -1,19 +1,20 @@
+const {
+  data: allTrades,
+  error: tradesError,
+  refresh: refreshTrades,
+} = await useFetch('/api/trades', { method: 'POST' })
+
 export default async function useTrades(pair: string) {
-  const {
-    data: trades,
-    error: tradesError,
-    refresh: refreshTrades,
-  } = await useFetch('/api/trades', { method: 'POST', body: { pair } })
-  
   const { availablePairs } = usePairs();
 
+  const pairTrades = computed(() => allTrades.value?.filter(trade => trade.pair === pair) || [])
   const pairInfo = computed<PairInfo | undefined>(() => availablePairs.value[pair])
 
-  const buyTrades = computed(() => trades.value?.filter(trade => trade.type === 'buy') || [])
+  const buyTrades = computed(() => pairTrades.value?.filter(trade => trade.type === 'buy') || [])
   const buyCostSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
   const buyVolSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)
 
-  const sellTrades = computed(() => trades.value?.filter(trade => trade.type === 'sell') || [])
+  const sellTrades = computed(() => pairTrades.value?.filter(trade => trade.type === 'sell') || [])
   const sellCostSum = computed(() => sellTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
   const sellVolSum = computed(() => sellTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)
 
@@ -34,7 +35,8 @@ export default async function useTrades(pair: string) {
   })
   
   return {
-    trades,
+    allTrades,
+    pairTrades,
     tradesError,
     refreshTrades,
     pairInfo,
