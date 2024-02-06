@@ -70,8 +70,8 @@ const showTrades = ref(false)
         </div>
         <div v-for="trade in trades" :key="trade.ordertxid" class="grid grid-cols-3" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
           <div>{{ trade.type }}</div>
-          <div>{{ parseFloat(trade.price).toFixed(3) }}</div>
-          <div>{{ parseFloat(trade.vol).toFixed(3) }}</div>
+          <div>{{ parseFloat(trade.price).toFixed(4) }}</div>
+          <div>{{ parseFloat(trade.vol).toFixed(4) }}</div>
         </div>
       </div>
     </div>
