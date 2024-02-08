@@ -11,11 +11,16 @@ export default async function useTrades(pair: string) {
   const pairFees = computed(() => pairTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.fee), 0) || 0)
   const pairInfo = computed<PairInfo | undefined>(() => availablePairs.value[pair])
 
-  const buyTrades = computed(() => pairTrades.value?.filter(trade => trade.type === 'buy') || [])
+  const calcTradesIds = ref<string[]>([])
+  const calcTrades = computed(() => {
+    return pairTrades.value?.filter(trade => calcTradesIds.value.includes(trade.ordertxid)) || []
+  })
+
+  const buyTrades = computed(() => calcTrades.value?.filter(trade => trade.type === 'buy') || [])
   const buyCostSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
   const buyVolSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)
 
-  const sellTrades = computed(() => pairTrades.value?.filter(trade => trade.type === 'sell') || [])
+  const sellTrades = computed(() => calcTrades.value?.filter(trade => trade.type === 'sell') || [])
   const sellCostSum = computed(() => sellTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
   const sellVolSum = computed(() => sellTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)
 
@@ -38,6 +43,8 @@ export default async function useTrades(pair: string) {
   return {
     allTrades,
     pairTrades,
+    calcTradesIds,
+    calcTrades,
     pairFees,
     tradesError,
     refreshTrades,

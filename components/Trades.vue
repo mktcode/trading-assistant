@@ -10,6 +10,7 @@ const {
   pairTrades,
   pairFees,
   pairInfo,
+  calcTradesIds,
   averageBuyPrice,
   averageSellPrice,
   averagePriceGap,
@@ -69,20 +70,30 @@ const showTrades = ref(false)
         <div>
           Fees: {{ pairFees.toFixed(2) }} {{ pairInfo?.quote }}
         </div>
-        <div class="grid grid-cols-4 mt-3">
+        <div>
+          Trade Result: {{ (sellCostSum - buyCostSum).toFixed(2) }} {{ pairInfo?.quote }}
+        </div>
+        <div>
+          Win: {{ (sellCostSum - buyCostSum - pairFees).toFixed(2) }} {{ pairInfo?.quote }}
+        </div>
+        <div class="grid grid-cols-5 mt-3">
+          <div></div>
           <div>Type</div>
           <div>Price</div>
           <div>Volume</div>
-          <div>Current</div>
         </div>
-        <div v-for="(trade, i in pairTrades" :key="trade.ordertxid" class="grid grid-cols-4" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
+        <div v-for="(trade, i in pairTrades" :key="trade.ordertxid" class="grid grid-cols-5" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
+          <div>
+            <button v-if="calcTradesIds.includes(trade.ordertxid)" @click="calcTradesIds = calcTradesIds.filter(id => id !== trade.ordertxid)">
+              -
+            </button>
+            <button v-else @click="calcTradesIds = [...calcTradesIds, trade.ordertxid]">
+              +
+            </button>
+          </div>
           <div>{{ trade.type }}</div>
           <div>{{ parseFloat(trade.price).toFixed(4) }}</div>
           <div>{{ parseFloat(trade.vol).toFixed(4) }}</div>
-          <div v-if="i === 1">
-            {{ (parseFloat(trade.vol) * ticker - parseFloat(trade.vol) * parseFloat(trade.price)).toFixed(2) }}
-          </div>
-          <div v-else />
         </div>
       </div>
     </div>
