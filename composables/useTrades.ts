@@ -8,14 +8,15 @@ export default async function useTrades(pair: string) {
   const { availablePairs } = usePairs();
 
   const pairTrades = computed(() => allTrades.value?.filter(trade => trade.pair === pair) || [])
-  const pairFees = computed(() => pairTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.fee), 0) || 0)
   const pairInfo = computed<PairInfo | undefined>(() => availablePairs.value[pair])
-
+  
   const calcTradesIds = ref<string[]>([])
   const calcTrades = computed(() => {
     return pairTrades.value?.filter(trade => calcTradesIds.value.includes(trade.ordertxid)) || []
   })
 
+  const pairFees = computed(() => calcTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.fee), 0) || 0)
+  
   const buyTrades = computed(() => calcTrades.value?.filter(trade => trade.type === 'buy') || [])
   const buyCostSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
   const buyVolSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)

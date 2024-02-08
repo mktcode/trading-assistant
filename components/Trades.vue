@@ -21,7 +21,6 @@ const {
 } = await useTrades(props.pair)
 const { removePair } = usePairs();
 const { tickers } = useTickers();
-const ticker = computed(() => tickers.value[props.pair])
 const showTrades = ref(false)
 </script>
 
@@ -84,7 +83,10 @@ const showTrades = ref(false)
         </div>
         <div v-for="(trade, i in pairTrades" :key="trade.ordertxid" class="grid grid-cols-5" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
           <div>
-            <button v-if="calcTradesIds.includes(trade.ordertxid)" @click="calcTradesIds = calcTradesIds.filter(id => id !== trade.ordertxid)">
+            <button
+              v-if="calcTradesIds.includes(trade.ordertxid)"
+              @click="calcTradesIds = calcTradesIds.filter(id => id !== trade.ordertxid)"
+            >
               -
             </button>
             <button v-else @click="calcTradesIds = [...calcTradesIds, trade.ordertxid]">
