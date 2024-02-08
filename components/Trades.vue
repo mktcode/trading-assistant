@@ -8,6 +8,7 @@ const props = defineProps({
 
 const {
   pairTrades,
+  pairFees,
   pairInfo,
   averageBuyPrice,
   averageSellPrice,
@@ -18,11 +19,13 @@ const {
   sellVolSum,
 } = await useTrades(props.pair)
 const { removePair } = usePairs();
+const { tickers } = useTickers();
+const ticker = computed(() => tickers.value[props.pair])
 const showTrades = ref(false)
 </script>
 
 <template>
-  <div class="border rounded-xl max-w-96">
+  <div class="border rounded-xl max-w-screen-sm">
     <h1 class="text-2xl font-bold px-4 py-2 border-b flex items-center">
       <span class="mr-3">
         {{ pair }}
@@ -63,15 +66,23 @@ const showTrades = ref(false)
         </button>
       </div>
       <div v-if="showTrades">
-        <div class="grid grid-cols-3 mt-3">
+        <div>
+          Fees: {{ pairFees.toFixed(2) }} {{ pairInfo?.quote }}
+        </div>
+        <div class="grid grid-cols-4 mt-3">
           <div>Type</div>
           <div>Price</div>
           <div>Volume</div>
+          <div>Current</div>
         </div>
-        <div v-for="trade in pairTrades" :key="trade.ordertxid" class="grid grid-cols-3" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
+        <div v-for="(trade, i in pairTrades" :key="trade.ordertxid" class="grid grid-cols-4" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
           <div>{{ trade.type }}</div>
           <div>{{ parseFloat(trade.price).toFixed(4) }}</div>
           <div>{{ parseFloat(trade.vol).toFixed(4) }}</div>
+          <div v-if="i === 1">
+            {{ (parseFloat(trade.vol) * ticker - parseFloat(trade.vol) * parseFloat(trade.price)).toFixed(2) }}
+          </div>
+          <div v-else />
         </div>
       </div>
     </div>

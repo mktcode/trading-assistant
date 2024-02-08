@@ -8,6 +8,7 @@ export default async function useTrades(pair: string) {
   const { availablePairs } = usePairs();
 
   const pairTrades = computed(() => allTrades.value?.filter(trade => trade.pair === pair) || [])
+  const pairFees = computed(() => pairTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.fee), 0) || 0)
   const pairInfo = computed<PairInfo | undefined>(() => availablePairs.value[pair])
 
   const buyTrades = computed(() => pairTrades.value?.filter(trade => trade.type === 'buy') || [])
@@ -37,6 +38,7 @@ export default async function useTrades(pair: string) {
   return {
     allTrades,
     pairTrades,
+    pairFees,
     tradesError,
     refreshTrades,
     pairInfo,
