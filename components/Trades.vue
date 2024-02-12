@@ -8,9 +8,9 @@ const props = defineProps({
 
 const {
   pairTrades,
+  startDateInput,
   pairFees,
   pairInfo,
-  calcTradesIds,
   averageBuyPrice,
   averageSellPrice,
   averagePriceGap,
@@ -19,13 +19,12 @@ const {
   buyVolSum,
   sellVolSum,
 } = await useTrades(props.pair)
-const { removePair } = usePairs();
-const { tickers } = useTickers();
+const { removePair } = usePairs()
 const showTrades = ref(false)
 </script>
 
 <template>
-  <div class="border rounded-xl max-w-screen-sm">
+  <div class="border rounded-xl max-w-screen-sm text-sm">
     <h1 class="text-2xl font-bold px-4 py-2 border-b flex items-center">
       <span class="mr-3">
         {{ pair }}
@@ -37,6 +36,16 @@ const showTrades = ref(false)
         </svg>
       </button>
     </h1>
+    <div class="flex items-center justify-between border-b">
+      <div class="px-3">
+        Start:
+      </div>
+      <input
+        v-model="startDateInput"
+        type="datetime-local"
+        class="p-3"
+      />
+    </div>
     <div class="w-full p-3">
       <div class="flex justify-between items-center">
         <div>Average Buy</div>
@@ -75,25 +84,15 @@ const showTrades = ref(false)
         <div>
           Win: {{ (sellCostSum - buyCostSum - pairFees).toFixed(2) }} {{ pairInfo?.quote }}
         </div>
-        <div class="grid grid-cols-5 mt-3">
-          <div></div>
+        <div class="grid grid-cols-4 mt-3">
           <div>Type</div>
+          <div>Date</div>
           <div>Price</div>
           <div>Volume</div>
         </div>
-        <div v-for="(trade, i in pairTrades" :key="trade.ordertxid" class="grid grid-cols-5" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
-          <div>
-            <button
-              v-if="calcTradesIds.includes(trade.ordertxid)"
-              @click="calcTradesIds = calcTradesIds.filter(id => id !== trade.ordertxid)"
-            >
-              -
-            </button>
-            <button v-else @click="calcTradesIds = [...calcTradesIds, trade.ordertxid]">
-              +
-            </button>
-          </div>
+        <div v-for="(trade, i in pairTrades" :key="trade.ordertxid" class="grid grid-cols-4" :class="trade.type === 'buy' ? 'text-green-500' : 'text-red-500'">
           <div>{{ trade.type }}</div>
+          <div>{{ new Date(trade.time * 1000).toLocaleTimeString() }}</div>
           <div>{{ parseFloat(trade.price).toFixed(4) }}</div>
           <div>{{ parseFloat(trade.vol).toFixed(4) }}</div>
         </div>
