@@ -7,21 +7,32 @@ const {
 export default async function useTrades(pair: string) {
   const { availablePairs } = usePairs();
 
-  const pairTrades = computed(() => allTrades.value?.filter(trade => trade.pair === pair) || [])
-  const pairInfo = computed<PairInfo | undefined>(() => availablePairs.value[pair])
-  
-  const calcTradesIds = ref<string[]>([])
-  const calcTrades = computed(() => {
-    return pairTrades.value?.filter(trade => calcTradesIds.value.includes(trade.ordertxid)) || []
+  const startDateInput = ref(new Date().toISOString().slice(0, 16))
+  const startDate = computed(() => {
+    return new Date(startDateInput.value)
   })
 
-  const pairFees = computed(() => calcTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.fee), 0) || 0)
+  const pairTrades = computed(() => {
+    if (!allTrades.value) return []
+
+    return allTrades.value
+      .filter(trade => trade.pair === pair)
+      .filter(trade => {
+        console.log('trade.time', new Date(trade.time * 1000))
+        console.log('startDate.value', startDate.value)
+
+        return new Date(trade.time * 1000) >= startDate.value
+      })
+  })
+  const pairInfo = computed<PairInfo | undefined>(() => availablePairs.value[pair])
+
+  const pairFees = computed(() => pairTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.fee), 0) || 0)
   
-  const buyTrades = computed(() => calcTrades.value?.filter(trade => trade.type === 'buy') || [])
+  const buyTrades = computed(() => pairTrades.value?.filter(trade => trade.type === 'buy') || [])
   const buyCostSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
   const buyVolSum = computed(() => buyTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)
 
-  const sellTrades = computed(() => calcTrades.value?.filter(trade => trade.type === 'sell') || [])
+  const sellTrades = computed(() => pairTrades.value?.filter(trade => trade.type === 'sell') || [])
   const sellCostSum = computed(() => sellTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.cost), 0) || 0)
   const sellVolSum = computed(() => sellTrades.value?.reduce((acc, trade) => acc + parseFloat(trade.vol), 0) || 0)
 
@@ -43,9 +54,9 @@ export default async function useTrades(pair: string) {
   
   return {
     allTrades,
+    startDateInput,
+    startDate,
     pairTrades,
-    calcTradesIds,
-    calcTrades,
     pairFees,
     tradesError,
     refreshTrades,
